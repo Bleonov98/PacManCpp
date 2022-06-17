@@ -19,6 +19,11 @@ private:
 	char16_t prevBuf[ROWS][COLS];
     char coord[50];
 
+    vector <GameObject*> allObjectList;
+    vector <Enemies*> enemyList;
+    vector <Coin*> coinList;
+    vector <BigCoin*> bigCoinList;
+
 	bool worldIsRun = true;
 
     int score = 0, level = 0;
@@ -85,7 +90,7 @@ private:
         }
 
         void SetScreenSize() {
-            int Width = 121, Height = 56, err = 30;
+            int Width = 151, Height = 56, err = 30;
 
             COORD monitorSize = { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
             COORD bufferSize = { Width, Height };

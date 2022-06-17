@@ -109,17 +109,17 @@ void Game::DrawChanges()
 
 void Game::DrawToMem()
 {
-	/*for (int i = 0; i < allGameObjects.size(); i++)
+	for (int i = 0; i < allObjectList.size(); i++)
 	{
-		if (allGameObjects[i]->deleteShape) {
-			allGameObjects.erase(allGameObjects.begin() + i);
+		if (allObjectList[i]->DeleteObject()) {
+			allObjectList.erase(allObjectList.begin() + i);
 		}
 	}
 
-	for (int i = 0; i < allGameObjects.size(); i++)
+	for (int i = 0; i < allObjectList.size(); i++)
 	{
-		allGameObjects[i]->DrawObject();
-	}*/
+		allObjectList[i]->DrawObject();
+	}
 }
 
 void Game::DrawArea()
@@ -146,7 +146,7 @@ void Game::DrawArea()
 
 				if (0 != dwResourceSize)
 				{
-					for (int i = 0; i < strnlen(area, 2192); i++) {
+					for (int i = 0; i < strnlen(area, 8000); i++) {
 						cout << area[i];
 					}
 				}
@@ -181,6 +181,9 @@ void Game::RunWorld(bool& restart)
 
 	level = 0;
 	score = 0;
+
+	Player* player = new Player(&wData, COLS/2, ROWS/2, 1, Yellow);
+	player->DrawObject();
 
 	while (worldIsRun) {
 		if (pause) {

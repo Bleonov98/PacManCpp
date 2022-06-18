@@ -22,10 +22,7 @@ void GameObject::SetY(int y)
 
 void GameObject::EraseObject()
 {
-    for (int i = 0; i < objectCoord.size(); i++)
-    {
-        wData->vBuf[objectCoord[i].second][objectCoord[i].first] = u' ';
-    }
+    wData->vBuf[_y][_x] = u' ';
 }
 
 bool GameObject::DeleteObject()
@@ -33,9 +30,55 @@ bool GameObject::DeleteObject()
     return _deleteObject;
 }
 
-void DynamicObject::MoveObject(int direction)
+void DynamicObject::CheckNextStep()
 {
 
+}
+
+void Player::ChangeDirection()
+{
+    if (GetAsyncKeyState(VK_UP)) {
+        _direction = UP;
+    }
+    else if (GetAsyncKeyState(VK_RIGHT)) {
+        _direction = RIGHT;
+    }
+    else if (GetAsyncKeyState(VK_DOWN)) {
+        _direction = DOWN;
+    }
+    else if (GetAsyncKeyState(VK_LEFT)) {
+        _direction = LEFT;
+    }
+}
+
+void Player::MoveObject()
+{
+    ChangeDirection();
+
+    CheckNextStep();
+    if (_direction != STOP) {
+
+        EraseObject();
+
+        if (_direction == UP) {
+            _y -= _speed;
+        }
+        else if (_direction == RIGHT) {
+            _x += _speed;
+        }
+        else if (_direction == DOWN) {
+            _y += _speed;
+        }
+        else if (_direction == LEFT) {
+            _x -= _speed;
+        }
+
+        if (_playerAnimation == 0) {
+            _playerAnimation++;
+        }
+        else _playerAnimation = 0;
+
+    }
 }
 
 void Player::DrawObject()
@@ -44,7 +87,7 @@ void Player::DrawObject()
     {
         for (int j = 0; j < WIDTH - 1; j++)
         {
-            GameObject::wData->vBuf[GameObject::GetY()][GameObject::GetX()] = sprite[1][1][1][1] | (GameObject::_color << 8);
+            wData->vBuf[_y + i][_x + j] = sprite[_playerAnimation][_direction][i][j] | (_color << 8);
         }
     }
 }

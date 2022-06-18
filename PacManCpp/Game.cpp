@@ -77,25 +77,25 @@ void Game::DrawChanges()
 				SetPos(x, y);
 
 				if ((prevBuf[y][x] >> 8) == Red) {
-					printf(CSI "41;31m");
+					printf(CSI "22;31m");
 				}
 				else if ((prevBuf[y][x] >> 8) == Green) {
-					printf(CSI "42;32m");
+					printf(CSI "22;32m");
 				}
 				else if ((prevBuf[y][x] >> 8) == Blue) {
-					printf(CSI "44;34m");
+					printf(CSI "22;34m");
 				}
 				else if ((prevBuf[y][x] >> 8) == Yellow) {
-					printf(CSI "43;33m");
+					printf(CSI "22;33m");
 				}
 				else if ((prevBuf[y][x] >> 8) == Purple) {
-					printf(CSI "45;35m");
+					printf(CSI "22;35m");
 				}
 				else if ((prevBuf[y][x] >> 8) == Cyan) {
-					printf(CSI "46;36m");
+					printf(CSI "22;36m");
 				}
 				else if ((prevBuf[y][x] >> 8) == White) {
-					printf(CSI "47;37m");
+					printf(CSI "22;37m");
 				}
 				else printf(CSI "0;0m");
 
@@ -183,7 +183,7 @@ void Game::RunWorld(bool& restart)
 	score = 0;
 
 	Player* player = new Player(&wData, COLS/2, ROWS/2, 1, Yellow);
-	player->DrawObject();
+	allObjectList.push_back(player);
 
 	while (worldIsRun) {
 		if (pause) {
@@ -200,13 +200,15 @@ void Game::RunWorld(bool& restart)
 
 		}
 
+		player->MoveObject();
+
 		DrawToMem();
 
 		DrawChanges();
 
 		DrawInfo();
 
-		Sleep(25);
+		Sleep(60);
 	}
 
 	DrawEndInfo(restart);

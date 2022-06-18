@@ -10,8 +10,6 @@ class GameObject
 {
 public:
 
-	wd* wData;
-
 	GameObject(wd* wData, int x, int y, int speed, int color) {
 		_x = x, _y = y, _speed = speed, _color = color;
 		this->wData = wData;
@@ -29,19 +27,19 @@ public:
 
 	bool DeleteObject();
 
-	~GameObject() {
-		delete this;
-	}
-
 protected:
+
+	wd* wData;
 
 	int _x, _y, _speed, _color;
 
 	bool _deleteObject = false;
 
-	vector <pair<int, int>> objectCoord;
-
 	void EraseObject();
+
+	virtual ~GameObject() {
+		delete this;
+	}
 };
 
 
@@ -52,34 +50,42 @@ public:
 
 	DynamicObject(wd* wData, int x, int y, int speed, int color) : GameObject(wData, x, y, speed, color) {};
 
-	enum dir {
-		TOP,
-		BOT,
-		LEFT,
-		RIGHT,
-		STOP
-	};
-
-	void MoveObject(int direction);
-
-	void CheckNextStep();
+	virtual void MoveObject() = 0;
 
 protected:
 
+	void CheckNextStep();
+
+	virtual void ChangeDirection() = 0;
+
+	enum dir {
+		UP,
+		RIGHT,
+		DOWN,
+		LEFT,
+		STOP
+	};
+
+	int _direction = UP;
 };
 
 
 
 
-class Player : public DynamicObject, public GameObject
+class Player : public DynamicObject
 {
-public:
-	Player(wd* wData, int x, int y, int speed, int color) :DynamicObject(wData, x, y, speed, color), GameObject(wData, x, y, speed, color) 
-	{};
+public: 
+	Player(wd* wData, int x, int y, int speed, int color) :DynamicObject(wData, x, y, speed, color) {};
 
 	void DrawObject() override;
 
+	void MoveObject() override;
+
 protected:
+	
+	int _playerAnimation = 0;
+
+	void ChangeDirection() override;
 
 	char16_t sprite[ANIMATION][DIRECTION][HEIGHT][WIDTH]
 	{
@@ -94,7 +100,7 @@ protected:
 				u"^"
 			},
 			{
-				u"<"
+				u">"
 			}
 		},
 		{

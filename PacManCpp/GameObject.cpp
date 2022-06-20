@@ -1,4 +1,4 @@
-#include "GameObject.h"
+﻿#include "GameObject.h"
 
 int GameObject::GetX()
 {
@@ -32,7 +32,22 @@ bool GameObject::DeleteObject()
 
 void DynamicObject::CheckNextStep()
 {
-
+    if (
+        (_direction == UP) && (wData->vBuf[_y - 1][_x] == u'#')
+       ) {
+        _direction = STOP;
+    }
+    else if (
+        (_direction == RIGHT) && (wData->vBuf[_y][_x + 1] == u'#')
+        ) {
+        _direction = STOP;
+    }
+    else if (_direction == DOWN && wData->vBuf[_y + 1][_x] == u'#') {
+        _direction = STOP;
+    }
+    else if (_direction == LEFT && wData->vBuf[_y][_x - 1] == u'#') {
+        _direction = STOP;
+    }
 }
 
 void Player::ChangeDirection()
@@ -56,6 +71,7 @@ void Player::MoveObject()
     ChangeDirection();
 
     CheckNextStep();
+
     if (_direction != STOP) {
 
         EraseObject();
@@ -83,13 +99,48 @@ void Player::MoveObject()
 
 void Player::DrawObject()
 {
-    for (int i = 0; i < HEIGHT; i++)
+    for (int i = 0; i < CREATURE_HEIGHT; i++)
     {
-        for (int j = 0; j < WIDTH - 1; j++)
+        for (int j = 0; j < CREATURE_WIDTH - 1; j++)
         {
             wData->vBuf[_y + i][_x + j] = sprite[_playerAnimation][_direction][i][j] | (_color << 8);
         }
     }
 }
 
+void Wall::SetType(int type)
+{
+    _type = type;
 
+    FillCoord();
+}
+
+void Wall::FillCoord()
+{
+    if (_type == MAIN) 
+    {
+        for (int y = 0; y < BIG_WALL_HEIGHT; y++)
+        {
+            for (int x = 0; x < MAIN_WALL_WIDTH - 1; x++)
+            {
+                if (MainWallSprite[y][x] != 0 || MainWallSprite[y][x] != u' ') {
+                    wallCoord.push_back(make_pair(x, y));
+                }
+            }
+        }
+    }
+    
+}
+
+void Wall::DrawObject()
+{
+    if (_type == MAIN)
+    {
+        for (int i = 0; i < wallCoord.size(); i++)
+        {
+            wData->vBuf[wallCoord[i].second + _y][wallCoord[i].first + _x] = MainWallSprite[wallCoord[i].second][wallCoord[i].first];
+        }
+    }
+
+
+}

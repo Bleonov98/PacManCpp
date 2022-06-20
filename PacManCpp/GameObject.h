@@ -1,10 +1,10 @@
-#pragma once
+﻿#pragma once
 #include "Buffer.h"
 
-#define WIDTH 2
-#define HEIGHT 1
-#define DIRECTION 4
-#define ANIMATION 2
+#define CREATURE_WIDTH 2
+#define CREATURE_HEIGHT 1
+#define DIRECTION 5
+#define PLAYER_ANIMATION 2
 
 class GameObject
 {
@@ -44,6 +44,9 @@ protected:
 
 
 
+// ---------------------------------------- Dynamic Objects ----------------------------------------------
+
+
 class DynamicObject : public GameObject
 {
 public:
@@ -66,7 +69,7 @@ protected:
 		STOP
 	};
 
-	int _direction = UP;
+	int _direction = STOP;
 };
 
 
@@ -87,7 +90,7 @@ protected:
 
 	void ChangeDirection() override;
 
-	char16_t sprite[ANIMATION][DIRECTION][HEIGHT][WIDTH]
+	char16_t sprite[PLAYER_ANIMATION][DIRECTION][CREATURE_HEIGHT][CREATURE_WIDTH]
 	{
 		{
 			{
@@ -101,7 +104,10 @@ protected:
 			},
 			{
 				u">"
-			}
+			},
+			{
+				u"S"
+			},
 		},
 		{
 			{
@@ -115,6 +121,9 @@ protected:
 			},
 			{
 				u"-"
+			},
+			{
+				u"S"
 			}
 		}
 	};
@@ -124,46 +133,92 @@ protected:
 
 
 
-
-
-
-
-
-
-
-
-
-
-class Enemies :DynamicObject 
+class Enemies : public DynamicObject 
 {
 public:
 
 	Enemies(wd* wData, int x, int y, int speed, int color) :DynamicObject(wData, x, y, speed, color) {};
 
+	void DrawObject() override;
+
+	void MoveObject() override;
 
 };
 
 
 
 
+class FruitBonus : public DynamicObject
+{
+public:
+	FruitBonus(wd* wData, int x, int y, int speed, int color) : DynamicObject(wData, x, y, speed, color) {};
+private:
+};
 
-class Coin : GameObject
+
+
+// ----------------------------------------- Static Objects ----------------------------------------------------- 
+
+
+class Wall : public GameObject
+{
+public:
+
+	Wall(wd* wData, int x, int y, int speed, int color) :GameObject(wData, x, y, speed, color) {};
+
+	void DrawObject() override;
+
+	void SetType(int type);
+
+private:
+
+	vector <pair<int, int>> wallCoord;
+
+	enum WallType {
+		MAIN,
+		BIG,
+		LIL
+	};
+
+	static const int BIG_WALL_WIDTH = 30;
+	static const int BIG_WALL_HEIGHT = 10;
+	static const int LIL_WALL_WIDTH = 20;
+	static const int LIL_WALL_HEIGHT = 8;
+	static const int MAIN_WALL_WIDTH = 36;
+
+	int _type = MAIN;
+
+	char16_t MainWallSprite[BIG_WALL_HEIGHT][MAIN_WALL_WIDTH]{
+		u"################# #################",
+		u"################# #################",
+		u"####                           ####",
+		u"####                           ####",
+		u"####                           ####",
+		u"####                           ####",
+		u"####                           ####",
+		u"####                           ####",
+		u"###################################",
+		u"###################################"
+	};
+
+	void FillCoord();
+
+};
+
+
+
+class Coin :public GameObject
 {
 public:
 	Coin(wd* wData, int x, int y, int speed, int color) : GameObject(wData, x, y, speed, color) {};
 private:
 };
 
-class BigCoin : GameObject
+
+
+class BigCoin :public GameObject
 {
 public:
 	BigCoin(wd* wData, int x, int y, int speed, int color) : GameObject(wData, x, y, speed, color) {};
-private:
-};
-
-class FruitBonus :GameObject
-{
-public:
-	FruitBonus(wd* wData, int x, int y, int speed, int color) : GameObject(wData, x, y, speed, color) {};
 private:
 };

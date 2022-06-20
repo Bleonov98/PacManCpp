@@ -23,6 +23,7 @@ private:
     vector <Enemies*> enemyList;
     vector <Coin*> coinList;
     vector <BigCoin*> bigCoinList;
+    vector <Wall*> wallList;
 
 	bool worldIsRun = true;
 
@@ -135,6 +136,8 @@ protected:
     void DrawInfo();
 
     void DrawChanges();
+    
+    void SetWall(int x, int y, int type);
 
 public:
 

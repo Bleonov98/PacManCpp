@@ -107,6 +107,14 @@ void Game::DrawChanges()
 	}
 }
 
+void Game::SetWall(int x, int y, int type)
+{
+	Wall* wall = new Wall(&wData, x, y, 0, White);
+	wall->SetType(type);
+	wall->DrawObject();
+	wallList.push_back(wall);
+}
+
 void Game::DrawToMem()
 {
 	for (int i = 0; i < allObjectList.size(); i++)
@@ -146,7 +154,7 @@ void Game::DrawArea()
 
 				if (0 != dwResourceSize)
 				{
-					for (int i = 0; i < strnlen(area, 8000); i++) {
+					for (int i = 0; i < strnlen(area, 9000); i++) {
 						cout << area[i];
 					}
 				}
@@ -181,6 +189,9 @@ void Game::RunWorld(bool& restart)
 
 	level = 0;
 	score = 0;
+
+	SetWall(43, 22, 0);
+	SetWall(3, 3, 1);
 
 	Player* player = new Player(&wData, COLS/2, ROWS/2, 1, Yellow);
 	allObjectList.push_back(player);

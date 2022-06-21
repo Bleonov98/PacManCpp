@@ -109,10 +109,46 @@ void Game::DrawChanges()
 
 void Game::SetWall(int x, int y, int type)
 {
-	Wall* wall = new Wall(&wData, x, y, 0, White);
+	wall = new Wall(&wData, x, y, 0, White);
 	wall->SetType(type);
-	wall->DrawObject();
 	wallList.push_back(wall);
+}
+
+void Game::DrawLevel()
+{
+	SetWall(43, 21, MAIN);
+
+	SetWall(79, 21, REGULAR);
+	SetWall(33, 21, REGULAR);
+
+	SetWall(3, 3, BIG);
+	SetWall(3, 14, BIG);
+	SetWall(3, 25, BIG);
+	SetWall(3, 33, BIG);
+	SetWall(3, 44, BIG);
+	
+
+	SetWall(89, 3, BIG);
+	SetWall(89, 14, BIG);
+	SetWall(89, 25, BIG);
+	SetWall(89, 33, BIG);
+	SetWall(89, 44, BIG);
+
+	SetWall(33, 3, GIANT);
+	SetWall(33, 12, GIANT);
+	SetWall(33, 32, GIANT);
+	SetWall(33, 37, GIANT);
+
+	SetWall(33, 46, LIL);
+	SetWall(69, 46, LIL);
+
+	SetWall(53, 46, THIN);
+	SetWall(61, 46, THIN);
+
+	for (int i = 0; i < wallList.size(); i++)
+	{
+		wallList[i]->DrawObject();
+	}
 }
 
 void Game::DrawToMem()
@@ -190,11 +226,12 @@ void Game::RunWorld(bool& restart)
 	level = 0;
 	score = 0;
 
-	SetWall(43, 22, 0);
-	SetWall(3, 3, 1);
+	DrawLevel();
 
-	Player* player = new Player(&wData, COLS/2, ROWS/2, 1, Yellow);
+	Player* player = new Player(&wData, COLS/2, 31, 1, Yellow);
 	allObjectList.push_back(player);
+
+	
 
 	while (worldIsRun) {
 		if (pause) {

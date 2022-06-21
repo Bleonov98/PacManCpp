@@ -6,6 +6,15 @@
 #define DIRECTION 5
 #define PLAYER_ANIMATION 2
 
+enum WallType {
+	MAIN,
+	BIG,
+	LIL,
+	GIANT, 
+	THIN,
+	REGULAR
+};
+
 class GameObject
 {
 public:
@@ -106,7 +115,7 @@ protected:
 				u">"
 			},
 			{
-				u"S"
+				u"8"
 			},
 		},
 		{
@@ -123,7 +132,7 @@ protected:
 				u"-"
 			},
 			{
-				u"S"
+				u"8"
 			}
 		}
 	};
@@ -173,20 +182,20 @@ public:
 private:
 
 	vector <pair<int, int>> wallCoord;
-
-	enum WallType {
-		MAIN,
-		BIG,
-		LIL
-	};
-
-	static const int BIG_WALL_WIDTH = 30;
-	static const int BIG_WALL_HEIGHT = 10;
-	static const int LIL_WALL_WIDTH = 20;
-	static const int LIL_WALL_HEIGHT = 8;
+	
+	static const int GIANT_WALL_WIDTH = 56;
 	static const int MAIN_WALL_WIDTH = 36;
+	static const int BIG_WALL_WIDTH = 30;
+	static const int LIL_WALL_WIDTH = 20;
+	static const int REG_WALL_WIDTH = 10;
+	static const int THIN_WALL_WIDTH = 8;
+
+	static const int BIG_WALL_HEIGHT = 10;
+	static const int LIL_WALL_HEIGHT = 8;
 
 	int _type = MAIN;
+
+
 
 	char16_t MainWallSprite[BIG_WALL_HEIGHT][MAIN_WALL_WIDTH]{
 		u"################# #################",
@@ -201,6 +210,67 @@ private:
 		u"###################################"
 	};
 
+	char16_t BigWallSprite[BIG_WALL_HEIGHT][BIG_WALL_WIDTH]{
+		u"#############################",
+		u"#############################",
+		u"####                     ####",
+		u"####                     ####",
+		u"####                     ####",
+		u"####                     ####",
+		u"####                     ####",
+		u"####                     ####",
+		u"#############################",
+		u"#############################"
+	};
+
+	char16_t LilWallSprite[LIL_WALL_HEIGHT][LIL_WALL_WIDTH]{
+		u"###################",
+		u"###################",
+		u"####           ####",
+		u"####           ####",
+		u"####           ####",
+		u"####           ####",
+		u"###################",
+		u"###################"
+	};
+
+	char16_t GiantWallSprite[LIL_WALL_HEIGHT][GIANT_WALL_WIDTH]{
+		u"#######################################################",
+		u"#######################################################",
+		u"#####                                             #####",
+		u"#####                                             #####",
+		u"#####                                             #####",
+		u"#####                                             #####",
+		u"#######################################################",
+		u"#######################################################"
+	};
+
+	char16_t ThinWallSprite[LIL_WALL_HEIGHT][THIN_WALL_WIDTH]{
+		u"#######",
+		u"##   ##",
+		u"##   ##",
+		u"##   ##",
+		u"##   ##",
+		u"##   ##",
+		u"##   ##",
+		u"#######"
+	};
+
+	char16_t RegWallSprite[BIG_WALL_HEIGHT][REG_WALL_WIDTH]{
+		u"#########",
+		u"##     ##",
+		u"##     ##",
+		u"##     ##",
+		u"##     ##",
+		u"##     ##",
+		u"##     ##",
+		u"##     ##",
+		u"##     ##",
+		u"#########"
+	};
+
+
+
 	void FillCoord();
 
 };
@@ -212,13 +282,6 @@ class Coin :public GameObject
 public:
 	Coin(wd* wData, int x, int y, int speed, int color) : GameObject(wData, x, y, speed, color) {};
 private:
-};
 
 
-
-class BigCoin :public GameObject
-{
-public:
-	BigCoin(wd* wData, int x, int y, int speed, int color) : GameObject(wData, x, y, speed, color) {};
-private:
 };

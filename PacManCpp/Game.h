@@ -4,7 +4,9 @@
 class Game
 {
 private:
+
 	wd wData;
+    Wall* wall;
 
     enum colors {
         White = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE,
@@ -138,6 +140,8 @@ protected:
     void DrawChanges();
     
     void SetWall(int x, int y, int type);
+
+    void DrawLevel();
 
 public:
 

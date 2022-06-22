@@ -108,9 +108,6 @@ void Player::DrawObject()
     }
 }
 
-
-
-
 void Wall::SetType(int type)
 {
     _type = type;

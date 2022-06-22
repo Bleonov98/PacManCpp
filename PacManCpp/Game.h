@@ -24,7 +24,6 @@ private:
     vector <GameObject*> allObjectList;
     vector <Enemies*> enemyList;
     vector <Coin*> coinList;
-    vector <BigCoin*> bigCoinList;
     vector <Wall*> wallList;
 
 	bool worldIsRun = true;

@@ -146,12 +146,27 @@ class Enemies : public DynamicObject
 {
 public:
 
-	Enemies(wd* wData, int x, int y, int speed, int color) :DynamicObject(wData, x, y, speed, color) {};
+	Enemies(wd* wData, int x, int y, int speed, int color) :DynamicObject(wData, x, y, speed, color) {
+		RefreshVisibleArea();
+	};
 
 	void DrawObject() override;
 
 	void MoveObject() override;
 
+	void IsInVisArea(Player* player);
+
+private:
+
+	void ChangeDirection() override;
+
+	void RefreshVisibleArea();
+
+	const int VISIBLE_RADIUS = 20;
+
+	bool _algMove = false;
+
+	vector <pair<int, int>> visibleArea;
 };
 
 
@@ -283,5 +298,13 @@ public:
 	Coin(wd* wData, int x, int y, int speed, int color) : GameObject(wData, x, y, speed, color) {};
 private:
 
+	class BigCoin 
+	{
+	public:
 
+	private:
+
+	};
+
+	BigCoin bCoin;
 };

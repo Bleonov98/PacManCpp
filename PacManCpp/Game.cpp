@@ -231,7 +231,11 @@ void Game::RunWorld(bool& restart)
 	Player* player = new Player(&wData, COLS/2, 31, 1, Yellow);
 	allObjectList.push_back(player);
 
-	
+	Enemies* enemy = new Enemies(&wData, COLS / 2, 25, 1, Red);
+	allObjectList.push_back(enemy);
+	enemyList.push_back(enemy);
+
+	DrawChanges();
 
 	while (worldIsRun) {
 		if (pause) {
@@ -249,6 +253,12 @@ void Game::RunWorld(bool& restart)
 		}
 
 		player->MoveObject();
+
+		for (int i = 0; i < enemyList.size(); i++)
+		{
+			enemyList[i]->MoveObject();
+			enemyList[i]->IsInVisArea(player);
+		}
 
 		DrawToMem();
 

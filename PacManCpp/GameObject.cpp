@@ -50,6 +50,8 @@ void DynamicObject::CheckNextStep()
     }
 }
 
+// -------------------- Player --------------
+
 void Player::ChangeDirection()
 {
     if (GetAsyncKeyState(VK_UP) && (wData->vBuf[_y - 1][_x] != u'#') && (_y - 1 != 1)) {
@@ -107,6 +109,101 @@ void Player::DrawObject()
         }
     }
 }
+
+
+// -------------------- Enemy --------------- !!!!!!!!!!!!
+
+void Enemies::ChangeDirection()
+{
+    if (_direction == STOP) {
+        _direction = rand() % 4;
+    }
+}
+
+void Enemies::RefreshVisibleArea()
+{
+    visibleArea.clear();
+
+    for (int R = 1; R < VISIBLE_RADIUS; R++)
+    {
+        int x = 0;
+        int y = R;
+
+        int delta = 1 - 2 * R;
+        int err = 0;
+
+        while (y >= x) {
+            visibleArea.push_back(make_pair(_x + x, _y + y));
+            visibleArea.push_back(make_pair(_x + x, _y - y));
+            visibleArea.push_back(make_pair(_x - x, _y + y));
+            visibleArea.push_back(make_pair(_x - x, _y - y));
+            visibleArea.push_back(make_pair(_x + y, _y + x));
+            visibleArea.push_back(make_pair(_x + y, _y - x));
+            visibleArea.push_back(make_pair(_x - y, _y + x));
+            visibleArea.push_back(make_pair(_x - y, _y - x));
+
+            err = 2 * (delta + y) - 1;
+
+            if ((delta < 0) && (err <= 0)) {
+                delta += 2 * ++x + 1;
+                continue;
+            }
+            if ((delta > 0) && (err > 0)) {
+                delta -= 2 * --y + 1;
+                continue;
+            }
+
+            delta += 2 * (++x - --y);
+        }
+    }
+}
+
+void Enemies::IsInVisArea(Player* player)
+{
+    for (int i = 0; i < visibleArea.size(); i++)
+    {
+        if ((player->GetX() == visibleArea[i].first) && (player->GetY() == visibleArea[i].second)) {
+            _algMove = true;
+            break;
+        }
+        else _algMove = false;
+    }
+}
+
+void Enemies::MoveObject()
+{
+    EraseObject();
+
+    if (_algMove) {
+
+        ChangeDirection();
+
+        CheckNextStep();
+
+        if (_direction == UP) {
+            SetY(_y -= _speed);
+        }
+        else if (_direction == RIGHT) {
+            SetX(_x += _speed);
+        }
+        else if (_direction == DOWN) {
+            SetY(_y += _speed);
+        }
+        else if (_direction == LEFT) {
+            SetX(_x -= _speed);
+        }
+    }
+
+    RefreshVisibleArea();
+}
+
+void Enemies::DrawObject()
+{
+    wData->vBuf[_y][_x] = u'&' | (_color << 8);
+}
+
+// -------------------- Wall --------------- !!!!!!!!!!!!!!!
+
 
 void Wall::SetType(int type)
 {

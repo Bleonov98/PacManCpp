@@ -51,10 +51,7 @@ protected:
 	}
 };
 
-
-
 // ---------------------------------------- Dynamic Objects ----------------------------------------------
-
 
 class DynamicObject : public GameObject
 {
@@ -80,8 +77,6 @@ protected:
 
 	int _direction = STOP;
 };
-
-
 
 
 class Player : public DynamicObject
@@ -140,8 +135,6 @@ protected:
 };
 
 
-
-
 class Enemies : public DynamicObject 
 {
 public:
@@ -151,6 +144,8 @@ public:
 	};
 
 	void DrawObject() override;
+
+	void FindPlayer();
 
 	void MoveObject() override;
 
@@ -170,15 +165,12 @@ private:
 };
 
 
-
-
 class FruitBonus : public DynamicObject
 {
 public:
 	FruitBonus(wd* wData, int x, int y, int speed, int color) : DynamicObject(wData, x, y, speed, color) {};
 private:
 };
-
 
 
 // ----------------------------------------- Static Objects ----------------------------------------------------- 

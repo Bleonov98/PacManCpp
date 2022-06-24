@@ -174,7 +174,7 @@ void Enemies::MoveObject()
 {
     EraseObject();
 
-    if (_algMove) {
+    if (!_algMove) {
 
         ChangeDirection();
 
@@ -193,6 +193,9 @@ void Enemies::MoveObject()
             SetX(_x -= _speed);
         }
     }
+    else {
+        FindPlayer();
+    }
 
     RefreshVisibleArea();
 }
@@ -202,7 +205,12 @@ void Enemies::DrawObject()
     wData->vBuf[_y][_x] = u'&' | (_color << 8);
 }
 
-// -------------------- Wall --------------- !!!!!!!!!!!!!!!
+void Enemies::FindPlayer()
+{
+
+}
+
+// -------------------- Wall ---------------
 
 
 void Wall::SetType(int type)

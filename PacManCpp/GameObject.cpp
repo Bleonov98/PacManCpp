@@ -194,7 +194,6 @@ void Enemies::MoveObject()
         }
     }
     else {
-        FindPlayer();
     }
 
     RefreshVisibleArea();
@@ -205,9 +204,31 @@ void Enemies::DrawObject()
     wData->vBuf[_y][_x] = u'&' | (_color << 8);
 }
 
-void Enemies::FindPlayer()
+void Enemies::FindPath(pair <int, int> targetPos)
 {
+    pair<int, int> startPos = make_pair( GetX(), GetY() );
+    
+    int d, x, y, k, len;
+    bool stop;
 
+    d = 0;
+    wData->grid[startPos.second][startPos.first] = 0;
+
+    do
+    {
+        stop = true;
+
+        for (y = 0; y < ROWS; y++)
+        {
+            for (x = 0; x < COLS; x++)
+            {
+
+            }
+        }
+
+        d++;
+
+    } while (!stop && ( (wData->vBuf[targetPos.second][targetPos.first]) || (wData->vBuf[targetPos.first][targetPos.second]) ));
 }
 
 // -------------------- Wall ---------------

@@ -145,23 +145,28 @@ public:
 
 	void DrawObject() override;
 
-	void FindPlayer();
-
 	void MoveObject() override;
 
 	void IsInVisArea(Player* player);
 
 private:
 
-	void ChangeDirection() override;
-
-	void RefreshVisibleArea();
-
 	const int VISIBLE_RADIUS = 20;
 
 	bool _algMove = false;
 
 	vector <pair<int, int>> visibleArea;
+
+	vector <pair<int, int>> wayToTarget;
+
+
+
+	void ChangeDirection() override;
+
+	void RefreshVisibleArea();
+
+	void FindPath(pair <int,int> targetPos);
+
 };
 
 

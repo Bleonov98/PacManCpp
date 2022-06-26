@@ -149,6 +149,17 @@ void Game::DrawLevel()
 	{
 		wallList[i]->DrawObject();
 	}
+
+	for (int i = 0; i < ROWS; i++)
+	{
+		for (int j = 0; j < COLS; j++)
+		{
+			if (wData.vBuf[i][j] == u'#') {
+				wData.grid[i][j] = -1;
+			}
+			else wData.grid[i][j] = -2;
+		}
+	}
 }
 
 void Game::DrawToMem()

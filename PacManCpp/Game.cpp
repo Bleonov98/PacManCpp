@@ -149,17 +149,6 @@ void Game::DrawLevel()
 	{
 		wallList[i]->DrawObject();
 	}
-
-	for (int i = 0; i < ROWS; i++)
-	{
-		for (int j = 0; j < COLS; j++)
-		{
-			if (wData.vBuf[i][j] == u'#') {
-				wData.grid[i][j] = -1;
-			}
-			else wData.grid[i][j] = -2;
-		}
-	}
 }
 
 void Game::DrawToMem()
@@ -239,14 +228,14 @@ void Game::RunWorld(bool& restart)
 
 	DrawLevel();
 
-	Player* player = new Player(&wData, COLS/2, 31, 1, Yellow);
+	DrawChanges();
+
+	Player* player = new Player(&wData, COLS/2, 45, 1, Yellow);
 	allObjectList.push_back(player);
 
 	Enemies* enemy = new Enemies(&wData, COLS / 2, 25, 1, Red);
 	allObjectList.push_back(enemy);
 	enemyList.push_back(enemy);
-
-	DrawChanges();
 
 	while (worldIsRun) {
 		if (pause) {

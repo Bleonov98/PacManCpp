@@ -141,6 +141,7 @@ public:
 
 	Enemies(wd* wData, int x, int y, int speed, int color) :DynamicObject(wData, x, y, speed, color) {
 		RefreshVisibleArea();
+		FindPath(make_pair(1,1));
 	};
 
 	void DrawObject() override;
@@ -157,7 +158,7 @@ private:
 
 	vector <pair<int, int>> visibleArea;
 
-	vector <pair<int, int>> wayToTarget;
+	vector <pair <int, int>> pathToGoal;
 
 
 

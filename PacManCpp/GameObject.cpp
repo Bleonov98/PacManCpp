@@ -164,6 +164,7 @@ void Enemies::IsInVisArea(Player* player)
     {
         if ((player->GetX() == visibleArea[i].first) && (player->GetY() == visibleArea[i].second)) {
             _algMove = true;
+            // FindPath(make_pair( player->GetX(), player->GetY() ));
             break;
         }
         else _algMove = false;
@@ -193,8 +194,10 @@ void Enemies::MoveObject()
             SetX(_x -= _speed);
         }
     }
-    else {
-    }
+    /*else if (_algMove) {
+        SetX(pathToGoal.back().first);
+        SetY(pathToGoal.back().second);
+    }*/
 
     RefreshVisibleArea();
 }
@@ -206,29 +209,77 @@ void Enemies::DrawObject()
 
 void Enemies::FindPath(pair <int, int> targetPos)
 {
-    pair<int, int> startPos = make_pair( GetX(), GetY() );
-    
-    int d, x, y, k, len;
-    bool stop;
 
-    d = 0;
-    wData->grid[startPos.second][startPos.first] = 0;
+    if (targetPos.first >= COLS || targetPos.second >= ROWS || targetPos.first <= 1 || targetPos.second <= 1) {
+        return;
+    }
 
-    do
+    for (int i = 0; i < ROWS; i++)
     {
-        stop = true;
-
-        for (y = 0; y < ROWS; y++)
+        for (int j = 0; j < COLS; j++)
         {
-            for (x = 0; x < COLS; x++)
-            {
-
+            if (wData->vBuf[i][j] == u'#' || i <= 1 || j <= 1 || j >= COLS - 1 || i >= ROWS) {
+                wData->grid[i][j] = -99;
             }
+            else wData->grid[i][j] = -1;
         }
+    }
+    // erase previous grid state
+
+    pathToGoal.clear();
+
+    pair<int, int> startPos = make_pair(GetX(), GetY());
+
+    int d = 0; // steps from start to goal
+
+    bool stop = false;
+
+    vector <pair<int, int>> wave;
+    vector <pair<int, int>> prevWave;
+
+    wData->grid[startPos.second][startPos.first] = d;
+    prevWave.push_back(make_pair(startPos.first, startPos.second));
+
+    while (!stop) {
 
         d++;
 
-    } while (!stop && ( (wData->vBuf[targetPos.second][targetPos.first]) || (wData->vBuf[targetPos.first][targetPos.second]) ));
+        for (int i = 0; i < prevWave.size(); i++)
+        {
+
+            if (wData->grid[prevWave[i].second][prevWave[i].first + 1] == -1) {
+                wData->grid[prevWave[i].second][prevWave[i].first + 1] = d;
+                wave.push_back(make_pair(prevWave[i].first + 1, prevWave[i].second));
+            }
+            if (wData->grid[prevWave[i].second][prevWave[i].first - 1] == -1) {
+                wData->grid[prevWave[i].second][prevWave[i].first - 1] = d;
+                wave.push_back(make_pair(prevWave[i].first - 1, prevWave[i].second));
+            }
+            if (wData->grid[prevWave[i].second + 1][prevWave[i].first] == -1) {
+                wData->grid[prevWave[i].second + 1][prevWave[i].first] = d;
+                wave.push_back(make_pair(prevWave[i].first, prevWave[i].second + 1));
+            }
+            if (wData->grid[prevWave[i].second - 1][prevWave[i].first] == -1) {
+                wData->grid[prevWave[i].second - 1][prevWave[i].first] = d;
+                wave.push_back(make_pair(prevWave[i].first, prevWave[i].second - 1));
+            }
+        }
+
+        for (int i = 0; i < wave.size(); i++)
+        {
+            if (wave[i].first == targetPos.first && wave[i].second == targetPos.second) {
+                stop = true;
+                break;
+            }
+        }
+
+        prevWave.clear();
+        prevWave.swap(wave);
+    }
+
+    pathToGoal.push_back();
+
+
 }
 
 // -------------------- Wall ---------------

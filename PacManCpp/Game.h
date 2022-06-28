@@ -5,30 +5,19 @@ class Game
 {
 private:
 
-	wd wData;
-    Wall* wall;
-
-    enum colors {
-        White = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE,
-        Red = FOREGROUND_RED,
-        Green = FOREGROUND_GREEN,
-        Blue = FOREGROUND_BLUE,
-        Cyan = FOREGROUND_GREEN | FOREGROUND_BLUE,
-        Purple = FOREGROUND_RED | FOREGROUND_BLUE,
-        Yellow = FOREGROUND_RED | FOREGROUND_GREEN
-    };
+    const int ENEMY_COUNT = 4;
 
 	char16_t prevBuf[ROWS][COLS];
     char coord[50];
+
+    bool worldIsRun = true;
+
+    int score = 0, level = 0;
 
     vector <GameObject*> allObjectList;
     vector <Enemies*> enemyList;
     vector <Coin*> coinList;
     vector <Wall*> wallList;
-
-	bool worldIsRun = true;
-
-    int score = 0, level = 0;
 
     HINSTANCE hInstance;
 
@@ -119,6 +108,12 @@ private:
     };
 
     VirtualTerminal term; // console setting
+    wd wData;
+
+    Wall* wall;
+    Enemies* enemy;
+    FruitBonus* bonus;
+    Coin* coin;
 
 protected:
 
@@ -140,7 +135,11 @@ protected:
     
     void SetWall(int x, int y, int type);
 
+    void SetCoin(int x, int y, int type);
+
     void DrawLevel();
+
+    void Collision(Player* player);
 
 public:
 

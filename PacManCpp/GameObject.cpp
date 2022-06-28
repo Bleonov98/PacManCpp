@@ -115,9 +115,36 @@ void Player::DrawObject()
 
 void Enemies::ChangeDirection()
 {
+    int rnd = 1 + rand() % 2;
+
     if (_direction == STOP) {
         _direction = rand() % 4;
     }
+
+    if (_direction == UP && wData->grid[_y][_x + 1] != -99
+        || _direction == UP && wData->grid[_y][_x - 1] != -99) {
+        if (rnd == 2) _direction = rand() % 4;
+    }
+ 
+    if (_direction == DOWN && wData->grid[_y][_x + 1] != -99
+        || _direction == DOWN && wData->grid[_y][_x - 1] != -99) {
+        if (rnd == 2) _direction = rand() % 4;
+    }
+
+    if (_direction == RIGHT && wData->grid[_y + 1][_x] != -99
+        || _direction == RIGHT && wData->grid[_y - 1][_x] != -99) {
+        if (_y != ROWS - 1) {
+            if (rnd == 2) _direction = rand() % 4;
+        }
+    }
+
+    if (_direction == LEFT && wData->grid[_y + 1][_x] != -99
+        || _direction == LEFT && wData->grid[_y - 1][_x] != -99) {
+        if (_y != ROWS - 1) {
+            if (rnd == 2) _direction = rand() % 4;
+        }
+    }
+
 }
 
 void Enemies::RefreshVisibleArea()
@@ -164,16 +191,19 @@ void Enemies::IsInVisArea(Player* player)
     {
         if ((player->GetX() == visibleArea[i].first) && (player->GetY() == visibleArea[i].second)) {
             _algMove = true;
-            // FindPath(make_pair( player->GetX(), player->GetY() ));
+            FindPath(make_pair( player->GetX(), player->GetY() ));
             break;
         }
-        else _algMove = false;
     }
 }
 
 void Enemies::MoveObject()
 {
     EraseObject();
+
+    if (pathToGoal.empty()) {
+        _algMove = false;
+    }
 
     if (!_algMove) {
 
@@ -194,10 +224,14 @@ void Enemies::MoveObject()
             SetX(_x -= _speed);
         }
     }
-    /*else if (_algMove) {
-        SetX(pathToGoal.back().first);
-        SetY(pathToGoal.back().second);
-    }*/
+    else if (_algMove) {
+        if (!pathToGoal.empty()) {
+            SetX(pathToGoal.back().first);
+            SetY(pathToGoal.back().second);
+
+            pathToGoal.pop_back();
+        }
+    }
 
     RefreshVisibleArea();
 }
@@ -209,7 +243,6 @@ void Enemies::DrawObject()
 
 void Enemies::FindPath(pair <int, int> targetPos)
 {
-
     if (targetPos.first >= COLS || targetPos.second >= ROWS || targetPos.first <= 1 || targetPos.second <= 1) {
         return;
     }
@@ -277,13 +310,34 @@ void Enemies::FindPath(pair <int, int> targetPos)
         prevWave.swap(wave);
     }
 
-    pathToGoal.push_back();
+    pair<int, int> curPos = make_pair(targetPos.first, targetPos.second);
+    pathToGoal.push_back(make_pair(targetPos.first, targetPos.second));
 
+    while (d > 0) {
+        if (wData->grid[curPos.second][curPos.first + 1] == d) {
+            pathToGoal.push_back(make_pair(curPos.first + 1, curPos.second));
+            curPos.first++;
+        }
+        else if (wData->grid[curPos.second][curPos.first - 1] == d) {
+            pathToGoal.push_back(make_pair(curPos.first - 1, curPos.second));
+            curPos.first--;
+        }
+        else if (wData->grid[curPos.second + 1][curPos.first] == d) {
+            pathToGoal.push_back(make_pair(curPos.first, curPos.second + 1));
+            curPos.second++;
+        }
+        else if (wData->grid[curPos.second - 1][curPos.first] == d) {
+            pathToGoal.push_back(make_pair(curPos.first, curPos.second - 1));
+            curPos.second--;
+        }
 
+        d--;
+    }    
+
+    _algMove = true;
 }
 
 // -------------------- Wall ---------------
-
 
 void Wall::SetType(int type)
 {
@@ -419,3 +473,25 @@ void Wall::DrawObject()
         }
     }
 }
+
+// -------------------- COIN ---------------
+
+void Coin::SetType(int type)
+{
+    _type = type;
+}
+
+void Coin::DrawObject()
+{
+    if (_type == MINI) {
+        _color = Yellow;
+        wData->vBuf[_y][_x] = u'.' | (_color << 8);
+    }
+    else if (_type == IMMORTAL) {
+        _color = White;
+        wData->vBuf[_y][_x] = u'O' | (_color << 8);
+    }
+}
+
+// -------------------- BONUS --------------
+

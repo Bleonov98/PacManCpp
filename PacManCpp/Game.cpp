@@ -97,6 +97,9 @@ void Game::DrawChanges()
 				else if ((prevBuf[y][x] >> 8) == White) {
 					printf(CSI "22;37m");
 				}
+				else if ((prevBuf[y][x] >> 8) == PacMan) {
+					printf(CSI "0;93m");
+				}
 				else printf(CSI "0;0m");
 
 				cout << char(prevBuf[y][x]);
@@ -114,8 +117,27 @@ void Game::SetWall(int x, int y, int type)
 	wallList.push_back(wall);
 }
 
+void Game::SetCoin(int x, int y, int type)
+{
+	coin = new Coin(&wData, x, y, 0, White);
+	coin->SetType(type);
+	coinList.push_back(coin);
+	allObjectList.push_back(coin);
+}
+
 void Game::DrawLevel()
 {
+	for (int i = 0; i < ROWS; i++)
+	{
+		for (int j = 0; j < COLS; j++)
+		{
+			if (wData.vBuf[i][j] == u'#' || i <= 1 || j <= 1 || j >= COLS - 1 || i >= ROWS) {
+				wData.grid[i][j] = -99;
+			}
+			else wData.grid[i][j] = -1;
+		}
+	}
+
 	SetWall(43, 21, MAIN);
 
 	SetWall(79, 21, REGULAR);
@@ -148,6 +170,27 @@ void Game::DrawLevel()
 	for (int i = 0; i < wallList.size(); i++)
 	{
 		wallList[i]->DrawObject();
+	}
+
+	for (int y = 2; y < ROWS; y++)
+	{
+		for (int x = 2; x < COLS; x += 2)
+		{
+			if (wData.vBuf[y][x] != u'#' && wData.vBuf[y][x] != u' ') {
+				if ((y == 2 && x == 2) || (y == 2 && x == COLS - 2) || (y == ROWS - 1 && x == 2) || (y == ROWS - 1 && x == COLS - 2)) {
+					SetCoin(x, y, IMMORTAL);
+				}
+				else SetCoin(x, y, MINI);
+			}
+		}
+	}
+
+}
+
+void Game::Collision(Player* player)
+{
+	if (player->GetX() == bonus->GetX() && player->GetY() == bonus->GetY()) {
+		score += 100;
 	}
 }
 
@@ -230,12 +273,15 @@ void Game::RunWorld(bool& restart)
 
 	DrawChanges();
 
-	Player* player = new Player(&wData, COLS/2, 45, 1, Yellow);
+	Player* player = new Player(&wData, COLS/2, 45, 1, PacMan);
 	allObjectList.push_back(player);
 
-	Enemies* enemy = new Enemies(&wData, COLS / 2, 25, 1, Red);
-	allObjectList.push_back(enemy);
-	enemyList.push_back(enemy);
+	for (int i = 0; i < ENEMY_COUNT; i++)
+	{
+		enemy = new Enemies(&wData, COLS / 2 + i, 25, 1, Red - i);
+		allObjectList.push_back(enemy);
+		enemyList.push_back(enemy);
+	}
 
 	while (worldIsRun) {
 		if (pause) {
@@ -261,6 +307,8 @@ void Game::RunWorld(bool& restart)
 		}
 
 		DrawToMem();
+
+		// Collision(player);
 
 		DrawChanges();
 

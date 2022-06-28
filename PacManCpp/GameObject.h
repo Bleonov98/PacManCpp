@@ -6,15 +6,6 @@
 #define DIRECTION 5
 #define PLAYER_ANIMATION 2
 
-enum WallType {
-	MAIN,
-	BIG,
-	LIL,
-	GIANT, 
-	THIN,
-	REGULAR
-};
-
 class GameObject
 {
 public:
@@ -110,7 +101,7 @@ protected:
 				u">"
 			},
 			{
-				u"8"
+				u"@"
 			},
 		},
 		{
@@ -127,7 +118,7 @@ protected:
 				u"-"
 			},
 			{
-				u"8"
+				u"@"
 			}
 		}
 	};
@@ -141,7 +132,7 @@ public:
 
 	Enemies(wd* wData, int x, int y, int speed, int color) :DynamicObject(wData, x, y, speed, color) {
 		RefreshVisibleArea();
-		FindPath(make_pair(1,1));
+		FindPath(make_pair(65,20));
 	};
 
 	void DrawObject() override;
@@ -175,12 +166,15 @@ class FruitBonus : public DynamicObject
 {
 public:
 	FruitBonus(wd* wData, int x, int y, int speed, int color) : DynamicObject(wData, x, y, speed, color) {};
+
 private:
+
+	
+
 };
 
 
 // ----------------------------------------- Static Objects ----------------------------------------------------- 
-
 
 class Wall : public GameObject
 {
@@ -288,21 +282,17 @@ private:
 
 };
 
-
-
 class Coin :public GameObject
 {
 public:
 	Coin(wd* wData, int x, int y, int speed, int color) : GameObject(wData, x, y, speed, color) {};
+
+	void SetType(int type);
+
+	void DrawObject() override;
+
 private:
 
-	class BigCoin 
-	{
-	public:
+	int _type = MINI;
 
-	private:
-
-	};
-
-	BigCoin bCoin;
 };

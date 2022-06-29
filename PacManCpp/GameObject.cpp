@@ -25,10 +25,17 @@ void GameObject::EraseObject()
     wData->vBuf[_y][_x] = u' ';
 }
 
-bool GameObject::DeleteObject()
+bool GameObject::IsObjectDelete()
 {
     return _deleteObject;
 }
+
+void GameObject::DeleteObject()
+{
+    _deleteObject = true;
+}
+
+
 
 void DynamicObject::CheckNextStep()
 {
@@ -50,198 +57,7 @@ void DynamicObject::CheckNextStep()
     }
 }
 
-// -------------------- Player --------------
-
-void Player::ChangeDirection()
-{
-    if (GetAsyncKeyState(VK_UP) && (wData->vBuf[_y - 1][_x] != u'#') && (_y - 1 != 1)) {
-        _direction = UP;
-    }
-    else if (GetAsyncKeyState(VK_RIGHT) && (wData->vBuf[_y][_x + 1] != u'#') && (_x + 1 != COLS - 1)) {
-        _direction = RIGHT;
-    }
-    else if (GetAsyncKeyState(VK_DOWN) && (wData->vBuf[_y + 1][_x] != u'#') && (_y + 1 != ROWS)) {
-        _direction = DOWN;
-    }
-    else if (GetAsyncKeyState(VK_LEFT) && (wData->vBuf[_y][_x - 1] != u'#') && (_x - 1 != 1)) {
-        _direction = LEFT;
-    }
-}
-
-void Player::MoveObject()
-{
-    ChangeDirection();
-
-    CheckNextStep();
-
-    if (_direction != STOP) {
-
-        EraseObject();
-
-        if (_direction == UP) {
-            _y -= _speed;
-        }
-        else if (_direction == RIGHT) {
-            _x += _speed;
-        }
-        else if (_direction == DOWN) {
-            _y += _speed;
-        }
-        else if (_direction == LEFT) {
-            _x -= _speed;
-        }
-
-        if (_playerAnimation == 0) {
-            _playerAnimation++;
-        }
-        else _playerAnimation = 0;
-
-    }
-}
-
-void Player::DrawObject()
-{
-    for (int i = 0; i < CREATURE_HEIGHT; i++)
-    {
-        for (int j = 0; j < CREATURE_WIDTH - 1; j++)
-        {
-            wData->vBuf[_y + i][_x + j] = sprite[_playerAnimation][_direction][i][j] | (_color << 8);
-        }
-    }
-}
-
-
-// -------------------- Enemy --------------- !!!!!!!!!!!!
-
-void Enemies::ChangeDirection()
-{
-    int rnd = 1 + rand() % 2;
-
-    if (_direction == STOP) {
-        _direction = rand() % 4;
-    }
-
-    if (_direction == UP && wData->grid[_y][_x + 1] != -99
-        || _direction == UP && wData->grid[_y][_x - 1] != -99) {
-        if (rnd == 2) _direction = rand() % 4;
-    }
- 
-    if (_direction == DOWN && wData->grid[_y][_x + 1] != -99
-        || _direction == DOWN && wData->grid[_y][_x - 1] != -99) {
-        if (rnd == 2) _direction = rand() % 4;
-    }
-
-    if (_direction == RIGHT && wData->grid[_y + 1][_x] != -99
-        || _direction == RIGHT && wData->grid[_y - 1][_x] != -99) {
-        if (_y != ROWS - 1) {
-            if (rnd == 2) _direction = rand() % 4;
-        }
-    }
-
-    if (_direction == LEFT && wData->grid[_y + 1][_x] != -99
-        || _direction == LEFT && wData->grid[_y - 1][_x] != -99) {
-        if (_y != ROWS - 1) {
-            if (rnd == 2) _direction = rand() % 4;
-        }
-    }
-
-}
-
-void Enemies::RefreshVisibleArea()
-{
-    visibleArea.clear();
-
-    for (int R = 1; R < VISIBLE_RADIUS; R++)
-    {
-        int x = 0;
-        int y = R;
-
-        int delta = 1 - 2 * R;
-        int err = 0;
-
-        while (y >= x) {
-            visibleArea.push_back(make_pair(_x + x, _y + y));
-            visibleArea.push_back(make_pair(_x + x, _y - y));
-            visibleArea.push_back(make_pair(_x - x, _y + y));
-            visibleArea.push_back(make_pair(_x - x, _y - y));
-            visibleArea.push_back(make_pair(_x + y, _y + x));
-            visibleArea.push_back(make_pair(_x + y, _y - x));
-            visibleArea.push_back(make_pair(_x - y, _y + x));
-            visibleArea.push_back(make_pair(_x - y, _y - x));
-
-            err = 2 * (delta + y) - 1;
-
-            if ((delta < 0) && (err <= 0)) {
-                delta += 2 * ++x + 1;
-                continue;
-            }
-            if ((delta > 0) && (err > 0)) {
-                delta -= 2 * --y + 1;
-                continue;
-            }
-
-            delta += 2 * (++x - --y);
-        }
-    }
-}
-
-void Enemies::IsInVisArea(Player* player)
-{
-    for (int i = 0; i < visibleArea.size(); i++)
-    {
-        if ((player->GetX() == visibleArea[i].first) && (player->GetY() == visibleArea[i].second)) {
-            _algMove = true;
-            FindPath(make_pair( player->GetX(), player->GetY() ));
-            break;
-        }
-    }
-}
-
-void Enemies::MoveObject()
-{
-    EraseObject();
-
-    if (pathToGoal.empty()) {
-        _algMove = false;
-    }
-
-    if (!_algMove) {
-
-        ChangeDirection();
-
-        CheckNextStep();
-
-        if (_direction == UP) {
-            SetY(_y -= _speed);
-        }
-        else if (_direction == RIGHT) {
-            SetX(_x += _speed);
-        }
-        else if (_direction == DOWN) {
-            SetY(_y += _speed);
-        }
-        else if (_direction == LEFT) {
-            SetX(_x -= _speed);
-        }
-    }
-    else if (_algMove) {
-        if (!pathToGoal.empty()) {
-            SetX(pathToGoal.back().first);
-            SetY(pathToGoal.back().second);
-
-            pathToGoal.pop_back();
-        }
-    }
-
-    RefreshVisibleArea();
-}
-
-void Enemies::DrawObject()
-{
-    wData->vBuf[_y][_x] = u'&' | (_color << 8);
-}
-
-void Enemies::FindPath(pair <int, int> targetPos)
+void DynamicObject::FindPath(pair <int, int> targetPos)
 {
     if (targetPos.first >= COLS || targetPos.second >= ROWS || targetPos.first <= 1 || targetPos.second <= 1) {
         return;
@@ -332,10 +148,241 @@ void Enemies::FindPath(pair <int, int> targetPos)
         }
 
         d--;
-    }    
+    }
 
     _algMove = true;
 }
+
+
+// -------------------- Player --------------
+
+void Player::ChangeDirection()
+{
+    if (GetAsyncKeyState(VK_UP) && (wData->vBuf[_y - 1][_x] != u'#') && (_y - 1 != 1)) {
+        _direction = UP;
+    }
+    else if (GetAsyncKeyState(VK_RIGHT) && (wData->vBuf[_y][_x + 1] != u'#') && (_x + 1 != COLS - 1)) {
+        _direction = RIGHT;
+    }
+    else if (GetAsyncKeyState(VK_DOWN) && (wData->vBuf[_y + 1][_x] != u'#') && (_y + 1 != ROWS)) {
+        _direction = DOWN;
+    }
+    else if (GetAsyncKeyState(VK_LEFT) && (wData->vBuf[_y][_x - 1] != u'#') && (_x - 1 != 1)) {
+        _direction = LEFT;
+    }
+}
+
+void Player::MoveObject()
+{
+    ChangeDirection();
+
+    CheckNextStep();
+
+    if (_direction != STOP) {
+
+        EraseObject();
+
+        if (_direction == UP) {
+            _y -= _speed;
+        }
+        else if (_direction == RIGHT) {
+            _x += _speed;
+        }
+        else if (_direction == DOWN) {
+            _y += _speed;
+        }
+        else if (_direction == LEFT) {
+            _x -= _speed;
+        }
+
+        if (_playerAnimation == 0) {
+            _playerAnimation++;
+        }
+        else _playerAnimation = 0;
+
+    }
+}
+
+void Player::Death(bool &worldIsRun)
+{
+    EraseObject();
+
+    _x = 60, _y = 45;
+
+    if (lifes == 1) {
+        worldIsRun = false;
+    }
+    else lifes--;
+}
+
+void Player::Immortal(bool& immortal)
+{
+    immortal = true;
+
+    Sleep(10000);
+
+    immortal = false;
+}
+
+int Player::GetLifes()
+{
+    return lifes;
+}
+
+void Player::DrawObject()
+{
+    wData->vBuf[_y][_x] = sprite[_playerAnimation][_direction][0][0] | (_color << 8);
+}
+
+
+// -------------------- Enemy --------------- 
+
+void Enemies::ChangeDirection()
+{
+    int rnd = 1 + rand() % 2;
+
+    if (_direction == STOP) {
+        _direction = rand() % 4;
+    }
+
+    if (_direction == UP && wData->grid[_y][_x + 1] != -99
+        || _direction == UP && wData->grid[_y][_x - 1] != -99) {
+        if (rnd == 2) _direction = rand() % 4;
+    }
+ 
+    if (_direction == DOWN && wData->grid[_y][_x + 1] != -99
+        || _direction == DOWN && wData->grid[_y][_x - 1] != -99) {
+        if (rnd == 2) _direction = rand() % 4;
+    }
+
+    if (_direction == RIGHT && wData->grid[_y + 1][_x] != -99
+        || _direction == RIGHT && wData->grid[_y - 1][_x] != -99) {
+        if (_y != ROWS - 1) {
+            if (rnd == 2) _direction = rand() % 4;
+        }
+    }
+
+    if (_direction == LEFT && wData->grid[_y + 1][_x] != -99
+        || _direction == LEFT && wData->grid[_y - 1][_x] != -99) {
+        if (_y != ROWS - 1) {
+            if (rnd == 2) _direction = rand() % 4;
+        }
+    }
+
+}
+
+void Enemies::RefreshVisibleArea()
+{
+    visibleArea.clear();
+
+    for (int R = 1; R < VISIBLE_RADIUS; R++)
+    {
+        int x = 0;
+        int y = R;
+
+        int delta = 1 - 2 * R;
+        int err = 0;
+
+        while (y >= x) {
+            visibleArea.push_back(make_pair(_x + x, _y + y));
+            visibleArea.push_back(make_pair(_x + x, _y - y));
+            visibleArea.push_back(make_pair(_x - x, _y + y));
+            visibleArea.push_back(make_pair(_x - x, _y - y));
+            visibleArea.push_back(make_pair(_x + y, _y + x));
+            visibleArea.push_back(make_pair(_x + y, _y - x));
+            visibleArea.push_back(make_pair(_x - y, _y + x));
+            visibleArea.push_back(make_pair(_x - y, _y - x));
+
+            err = 2 * (delta + y) - 1;
+
+            if ((delta < 0) && (err <= 0)) {
+                delta += 2 * ++x + 1;
+                continue;
+            }
+            if ((delta > 0) && (err > 0)) {
+                delta -= 2 * --y + 1;
+                continue;
+            }
+
+            delta += 2 * (++x - --y);
+        }
+    }
+}
+
+void Enemies::IsInVisArea(Player* player)
+{
+    if (!_death) {
+        for (int i = 0; i < visibleArea.size(); i++)
+        {
+            if ((player->GetX() == visibleArea[i].first) && (player->GetY() == visibleArea[i].second)) {
+                _algMove = true;
+                FindPath(make_pair(player->GetX(), player->GetY()));
+                break;
+            }
+        }
+    }
+}
+
+bool Enemies::IsDeath()
+{
+    return _death;
+}
+
+void Enemies::EnemyDeath()
+{
+    _death = true;
+
+    FindPath(make_pair(60, 25));
+    _algMove = true;
+}
+
+void Enemies::MoveObject()
+{
+    EraseObject();
+
+    if (pathToGoal.empty()) {
+        _algMove = false;
+        if (_death) {
+            _death = false;
+        }
+    }
+
+    if (!_algMove) {
+
+        ChangeDirection();
+
+        CheckNextStep();
+
+        if (_direction == UP) {
+            SetY(_y -= _speed);
+        }
+        else if (_direction == RIGHT) {
+            SetX(_x += _speed);
+        }
+        else if (_direction == DOWN) {
+            SetY(_y += _speed);
+        }
+        else if (_direction == LEFT) {
+            SetX(_x -= _speed);
+        }
+    }
+    else if (_algMove) {
+        if (!pathToGoal.empty()) {
+            SetX(pathToGoal.back().first);
+            SetY(pathToGoal.back().second);
+
+            pathToGoal.pop_back();
+        }
+    }
+
+    RefreshVisibleArea();
+}
+
+void Enemies::DrawObject()
+{
+    wData->vBuf[_y][_x] = u'M' | (_color << 8);
+}
+
 
 // -------------------- Wall ---------------
 
@@ -474,6 +521,7 @@ void Wall::DrawObject()
     }
 }
 
+
 // -------------------- COIN ---------------
 
 void Coin::SetType(int type)
@@ -493,5 +541,63 @@ void Coin::DrawObject()
     }
 }
 
+int Coin::GetType()
+{
+    return _type;
+}
+
+
 // -------------------- BONUS --------------
 
+void FruitBonus::MoveObject()
+{
+    if (pathToGoal.empty()) {
+        _deleteObject = true;
+    }
+    else {
+        SetX(pathToGoal.back().first);
+        SetY(pathToGoal.back().second);
+
+        pathToGoal.pop_back();
+    }
+}
+
+void FruitBonus::DrawObject()
+{
+    EraseObject();
+
+    if (_tick % _speed == 0) {
+        MoveObject();
+    }
+
+    if (!_deleteObject) {
+        if (_type == LOW) {
+            _color = White;
+            wData->vBuf[_y][_x] = u'&' | (_color << 8);
+        }
+        else if (_type == MID) {
+            _color = Green;
+            wData->vBuf[_y][_x] = u'&' | (_color << 8);
+        }
+        else if (_type == HIGH) {
+            _color = Yellow;
+            wData->vBuf[_y][_x] = u'&' | (_color << 8);
+        }
+        else if (_type == INSANE) {
+            _color = Red;
+            wData->vBuf[_y][_x] = u'&' | (_color << 8);
+        }
+    }
+
+    _tick++;
+}
+
+int FruitBonus::GetType()
+{
+    return _type;
+}
+
+void FruitBonus::ChangeDirection()
+{
+    FindPath(make_pair(60, 25));
+}

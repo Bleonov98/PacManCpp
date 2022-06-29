@@ -10,14 +10,15 @@ private:
 	char16_t prevBuf[ROWS][COLS];
     char coord[50];
 
-    bool worldIsRun = true;
+    bool worldIsRun = true, immortal = false;
 
-    int score = 0, level = 0;
+    int score = 0;
 
     vector <GameObject*> allObjectList;
     vector <Enemies*> enemyList;
     vector <Coin*> coinList;
     vector <Wall*> wallList;
+    vector <FruitBonus*> bonusList;
 
     HINSTANCE hInstance;
 
@@ -129,13 +130,15 @@ protected:
 
     void DrawEndInfo(bool& restart);
 
-    void DrawInfo();
+    void DrawInfo(Player* player);
 
     void DrawChanges();
     
     void SetWall(int x, int y, int type);
 
     void SetCoin(int x, int y, int type);
+
+    void SpawnEnemies();
 
     void DrawLevel();
 

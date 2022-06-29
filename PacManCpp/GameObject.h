@@ -6,6 +6,7 @@
 #define DIRECTION 5
 #define PLAYER_ANIMATION 2
 
+
 class GameObject
 {
 public:
@@ -25,7 +26,9 @@ public:
 
 	virtual void DrawObject() = 0;
 
-	bool DeleteObject();
+	bool IsObjectDelete();
+
+	void DeleteObject();
 
 protected:
 
@@ -41,6 +44,7 @@ protected:
 		delete this;
 	}
 };
+
 
 // ---------------------------------------- Dynamic Objects ----------------------------------------------
 
@@ -58,6 +62,8 @@ protected:
 
 	virtual void ChangeDirection() = 0;
 
+	void FindPath(pair <int, int> targetPos);
+
 	enum dir {
 		UP,
 		RIGHT,
@@ -67,6 +73,11 @@ protected:
 	};
 
 	int _direction = STOP;
+
+	vector <pair <int, int>> pathToGoal;
+
+	bool _algMove = false;
+
 };
 
 
@@ -79,9 +90,15 @@ public:
 
 	void MoveObject() override;
 
+	void Death(bool& worldIsRun);
+
+	void Immortal(bool& immortal);
+
+	int GetLifes();
+
 protected:
 	
-	int _playerAnimation = 0;
+	int _playerAnimation = 0, lifes = 3;
 
 	void ChangeDirection() override;
 
@@ -141,15 +158,17 @@ public:
 
 	void IsInVisArea(Player* player);
 
+	bool IsDeath();
+
+	void EnemyDeath();
+
 private:
 
 	const int VISIBLE_RADIUS = 20;
 
-	bool _algMove = false;
+	bool _death = false;
 
 	vector <pair<int, int>> visibleArea;
-
-	vector <pair <int, int>> pathToGoal;
 
 
 
@@ -157,20 +176,28 @@ private:
 
 	void RefreshVisibleArea();
 
-	void FindPath(pair <int,int> targetPos);
-
 };
 
 
 class FruitBonus : public DynamicObject
 {
 public:
-	FruitBonus(wd* wData, int x, int y, int speed, int color) : DynamicObject(wData, x, y, speed, color) {};
+
+	FruitBonus(wd* wData, int x, int y, int speed, int color) : DynamicObject(wData, x, y, speed, color) {
+		ChangeDirection();
+	};
+
+	void DrawObject() override;
+
+	int GetType();
 
 private:
 
-	
+	void MoveObject() override;
 
+	void ChangeDirection() override;
+
+	int _type = rand() % 4, _tick = 0;
 };
 
 
@@ -290,6 +317,8 @@ public:
 	void SetType(int type);
 
 	void DrawObject() override;
+
+	int GetType();
 
 private:
 

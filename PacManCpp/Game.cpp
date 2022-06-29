@@ -22,16 +22,10 @@ void Game::HotKeys(bool& pause)
 
 void Game::DrawEndInfo(bool& restart)
 {
-	if (level == 5) {
-		SetPos(COLS + 3, 17);
-		cout << "CONGRATULATIONS! YOU WIN";
-	}
-	else {
-		SetPos(31, 17);
-		cout << "GAME OVER!";
-		SetPos(31, 20);
-		cout << "LEVEL: " << level + 1 << "/5";
-	}
+	SetPos(31, 17);
+	cout << "GAME OVER!";
+	SetPos(31, 20);
+
 	SetPos(32, 19);
 	cout << "SCORE: " << score;
 	SetPos(25, 22);
@@ -54,12 +48,12 @@ void Game::DrawEndInfo(bool& restart)
 	}
 }
 
-void Game::DrawInfo()
+void Game::DrawInfo(Player* player)
 {
 	SetPos(COLS + 10, 2);
 	cout << score;
 	SetPos(COLS + 10, 4);
-	cout << level + 1;
+	cout << player->GetLifes();
 }
 
 void Game::DrawChanges()
@@ -123,6 +117,16 @@ void Game::SetCoin(int x, int y, int type)
 	coin->SetType(type);
 	coinList.push_back(coin);
 	allObjectList.push_back(coin);
+}
+
+void Game::SpawnEnemies()
+{
+	for (int i = 0; i < ENEMY_COUNT; i++)
+	{
+		enemy = new Enemies(&wData, 54 + i * 2, 25, 1, 1 + i);
+		enemyList.push_back(enemy);
+		allObjectList.push_back(enemy);
+	}
 }
 
 void Game::DrawLevel()
@@ -189,17 +193,105 @@ void Game::DrawLevel()
 
 void Game::Collision(Player* player)
 {
-	if (player->GetX() == bonus->GetX() && player->GetY() == bonus->GetY()) {
-		score += 100;
+	for (int i = 0; i < bonusList.size(); i++)
+	{
+		if (player->GetX() == bonusList[i]->GetX() && player->GetY() == bonusList[i]->GetY()) {
+
+			if (bonusList[i]->GetType() == LOW) score += 100;
+			else if (bonusList[i]->GetType() == MID) score += 300;
+			else if (bonusList[i]->GetType() == HIGH) score += 500;
+			else if (bonusList[i]->GetType() == INSANE) score += 1000;
+
+			bonusList[i]->DeleteObject();
+			bonusList.erase(bonusList.begin() + i);
+		}
 	}
+
+	for (int i = 0; i < coinList.size(); i++)
+	{
+		if (player->GetX() == coinList[i]->GetX() && player->GetY() == coinList[i]->GetY()) {
+			score += 10;
+
+			if (coinList[i]->GetType() == IMMORTAL) {
+				thread goImmortal([&] {
+					player->Immortal(immortal);
+					});
+				goImmortal.detach();
+			}
+
+			coinList[i]->DeleteObject();
+			coinList.erase(coinList.begin() + i);
+			
+			break;
+		}
+	}
+
+	if (!immortal) {
+
+		for (int i = 0; i < enemyList.size(); i++)
+		{
+			if ((player->GetX() == enemyList[i]->GetX()) && (player->GetY() == enemyList[i]->GetY())) {
+				player->Death(worldIsRun);
+
+				for (int j = 0; j < enemyList.size(); j++)
+				{
+					wData.vBuf[enemyList[j]->GetY()][enemyList[j]->GetX()] = u' ';
+					enemyList[j]->DeleteObject();
+				}
+
+				Sleep(2000);
+				SpawnEnemies();
+
+				return;
+			}
+		}
+
+	}
+	else if (immortal) {
+
+		for (int i = 0; i < enemyList.size(); i++)
+		{
+			if ((player->GetX() == enemyList[i]->GetX()) && (player->GetY() == enemyList[i]->GetY()) && (!enemyList[i]->IsDeath()) ) {
+				
+				enemyList[i]->EnemyDeath();
+
+				Sleep(100);
+
+				score += 250;
+			}
+		}
+
+	}	
+	
 }
 
 void Game::DrawToMem()
 {
 	for (int i = 0; i < allObjectList.size(); i++)
 	{
-		if (allObjectList[i]->DeleteObject()) {
+		if (allObjectList[i]->IsObjectDelete()) {
 			allObjectList.erase(allObjectList.begin() + i);
+		}
+	}
+
+	for (int i = 0; i < bonusList.size(); i++)
+	{
+		if (bonusList[i]->IsObjectDelete()) {
+			bonusList.erase(bonusList.begin() + i);
+		}
+	}
+
+	for (int i = 0; i < coinList.size(); i++)
+	{
+		if (coinList[i]->IsObjectDelete()) {
+			coinList.erase(coinList.begin() + i);
+		}
+	}
+
+	for (int i = 0; i < enemyList.size(); i++)
+	{
+		if (enemyList[i]->IsObjectDelete()) {
+			enemyList.erase(enemyList.begin() + i);
 		}
 	}
 
@@ -266,22 +358,22 @@ void Game::RunWorld(bool& restart)
 		{ HotKeys(pause); }
 	);
 
-	level = 0;
 	score = 0;
 
 	DrawLevel();
 
-	DrawChanges();
-
 	Player* player = new Player(&wData, COLS/2, 45, 1, PacMan);
 	allObjectList.push_back(player);
 
-	for (int i = 0; i < ENEMY_COUNT; i++)
-	{
-		enemy = new Enemies(&wData, COLS / 2 + i, 25, 1, Red - i);
-		allObjectList.push_back(enemy);
-		enemyList.push_back(enemy);
-	}
+	SpawnEnemies();
+
+	bonus = new FruitBonus(&wData, 2, 2, 3, 0);
+	bonusList.push_back(bonus);
+	allObjectList.push_back(bonus);
+
+	DrawChanges();
+	
+	int tick = 0;
 
 	while (worldIsRun) {
 		if (pause) {
@@ -300,21 +392,37 @@ void Game::RunWorld(bool& restart)
 
 		player->MoveObject();
 
-		for (int i = 0; i < enemyList.size(); i++)
-		{
-			enemyList[i]->MoveObject();
-			enemyList[i]->IsInVisArea(player);
+		
+		if (immortal) {
+			if (tick % 3 == 0) {
+				for (int i = 0; i < enemyList.size(); i++)
+				{
+					enemyList[i]->IsInVisArea(player);
+					enemyList[i]->MoveObject();
+
+				}
+			}
 		}
+		else {
+			for (int i = 0; i < enemyList.size(); i++)
+			{
+				enemyList[i]->IsInVisArea(player);
+				enemyList[i]->MoveObject();
+
+			}
+		}
+
+		Collision(player);
 
 		DrawToMem();
 
-		// Collision(player);
-
 		DrawChanges();
 
-		DrawInfo();
+		DrawInfo(player);
 
 		Sleep(60);
+
+		tick++;
 	}
 
 	DrawEndInfo(restart);

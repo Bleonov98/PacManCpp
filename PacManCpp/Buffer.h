@@ -26,7 +26,10 @@ enum CoinType {
 };
 
 enum BonusType {
-
+	LOW,
+	MID,
+	HIGH,
+	INSANE
 };
 
 enum Colors {

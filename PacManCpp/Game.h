@@ -10,7 +10,7 @@ private:
 	char16_t prevBuf[ROWS][COLS];
     char coord[50];
 
-    bool worldIsRun = true, immortal = false;
+    bool worldIsRun = true, win = false, immortal = false;
 
     int score = 0;
 
@@ -139,6 +139,8 @@ protected:
     void SetCoin(int x, int y, int type);
 
     void SpawnEnemies();
+
+    void SpawnBonus(int x, int y);
 
     void DrawLevel();
 

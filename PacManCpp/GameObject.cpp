@@ -219,7 +219,7 @@ void Player::Immortal(bool& immortal)
 {
     immortal = true;
 
-    Sleep(10000);
+    Sleep(8000);
 
     immortal = false;
 }

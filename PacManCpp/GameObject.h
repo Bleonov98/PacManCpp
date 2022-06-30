@@ -100,6 +100,8 @@ protected:
 	
 	int _playerAnimation = 0, lifes = 3;
 
+	bool changeDir = false;
+
 	void ChangeDirection() override;
 
 	char16_t sprite[PLAYER_ANIMATION][DIRECTION][CREATURE_HEIGHT][CREATURE_WIDTH]

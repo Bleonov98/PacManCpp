@@ -22,15 +22,18 @@ void Game::HotKeys(bool& pause)
 
 void Game::DrawEndInfo(bool& restart)
 {
-	SetPos(31, 17);
-	cout << "GAME OVER!";
-	SetPos(31, 20);
+	if (win) {
+		SetPos(COLS + 4, 20);
+		cout << "CONGRATULATION! YOU WIN!";
+	}
+	else {
+		SetPos(COLS + 11, 20);
+		cout << "GAME OVER!";
+	}
 
-	SetPos(32, 19);
-	cout << "SCORE: " << score;
-	SetPos(25, 22);
+	SetPos(COLS + 5, 22);
 	cout << "PRESS ENTER TO RESTART";
-	SetPos(27, 23);
+	SetPos(COLS + 7, 23);
 	cout << "PRESS ESC TO EXIT";
 
 	bool pressed = false;
@@ -94,7 +97,7 @@ void Game::DrawChanges()
 				else if ((prevBuf[y][x] >> 8) == PacMan) {
 					printf(CSI "0;93m");
 				}
-				else printf(CSI "0;0m");
+				else printf(CSI "22; 44m");
 
 				cout << char(prevBuf[y][x]);
 
@@ -127,6 +130,13 @@ void Game::SpawnEnemies()
 		enemyList.push_back(enemy);
 		allObjectList.push_back(enemy);
 	}
+}
+
+void Game::SpawnBonus(int x, int y)
+{
+	bonus = new FruitBonus(&wData, x, y, 3, 0);
+	bonusList.push_back(bonus);
+	allObjectList.push_back(bonus);
 }
 
 void Game::DrawLevel()
@@ -195,13 +205,18 @@ void Game::Collision(Player* player)
 {
 	for (int i = 0; i < bonusList.size(); i++)
 	{
-		if (player->GetX() == bonusList[i]->GetX() && player->GetY() == bonusList[i]->GetY()) {
-
+		if ( ( player->GetX() + 1 == bonusList[i]->GetX() && player->GetY() == bonusList[i]->GetY() ) ||
+			 ( player->GetX() - 1 == bonusList[i]->GetX() && player->GetY() == bonusList[i]->GetY() ) ||
+			 ( player->GetX() == bonusList[i]->GetX() && player->GetY() + 1 == bonusList[i]->GetY() ) ||
+			 ( player->GetX() == bonusList[i]->GetX() && player->GetY() - 1 == bonusList[i]->GetY() ) ||
+			 ( player->GetX() == bonusList[i]->GetX() && player->GetY() == bonusList[i]->GetY() ) ) {
+ 
 			if (bonusList[i]->GetType() == LOW) score += 100;
 			else if (bonusList[i]->GetType() == MID) score += 300;
 			else if (bonusList[i]->GetType() == HIGH) score += 500;
 			else if (bonusList[i]->GetType() == INSANE) score += 1000;
 
+			wData.vBuf[bonusList[i]->GetY()][bonusList[i]->GetX()] = u' ';
 			bonusList[i]->DeleteObject();
 			bonusList.erase(bonusList.begin() + i);
 		}
@@ -230,7 +245,12 @@ void Game::Collision(Player* player)
 
 		for (int i = 0; i < enemyList.size(); i++)
 		{
-			if ((player->GetX() == enemyList[i]->GetX()) && (player->GetY() == enemyList[i]->GetY())) {
+			if (((player->GetX() + 1 == enemyList[i]->GetX()) && (player->GetY() == enemyList[i]->GetY())) ||
+				((player->GetX() - 1 == enemyList[i]->GetX()) && (player->GetY() == enemyList[i]->GetY())) ||
+				((player->GetX() == enemyList[i]->GetX()) && (player->GetY() - 1 == enemyList[i]->GetY())) ||
+				((player->GetX() == enemyList[i]->GetX()) && (player->GetY() + 1 == enemyList[i]->GetY())) ||
+				((player->GetX() == enemyList[i]->GetX()) && (player->GetY() == enemyList[i]->GetY())) ) {
+
 				player->Death(worldIsRun);
 
 				for (int j = 0; j < enemyList.size(); j++)
@@ -251,7 +271,11 @@ void Game::Collision(Player* player)
 
 		for (int i = 0; i < enemyList.size(); i++)
 		{
-			if ((player->GetX() == enemyList[i]->GetX()) && (player->GetY() == enemyList[i]->GetY()) && (!enemyList[i]->IsDeath()) ) {
+			if ( ((player->GetX() + 1 == enemyList[i]->GetX()) && (player->GetY() == enemyList[i]->GetY())) ||
+				((player->GetX() - 1 == enemyList[i]->GetX()) && (player->GetY() == enemyList[i]->GetY())) ||
+				((player->GetX() == enemyList[i]->GetX()) && (player->GetY() - 1 == enemyList[i]->GetY())) ||
+				((player->GetX() == enemyList[i]->GetX()) && (player->GetY() + 1 == enemyList[i]->GetY())) ||
+				((player->GetX() == enemyList[i]->GetX()) && (player->GetY() == enemyList[i]->GetY())) ) {
 				
 				enemyList[i]->EnemyDeath();
 
@@ -262,7 +286,6 @@ void Game::Collision(Player* player)
 		}
 
 	}	
-	
 }
 
 void Game::DrawToMem()
@@ -367,15 +390,14 @@ void Game::RunWorld(bool& restart)
 
 	SpawnEnemies();
 
-	bonus = new FruitBonus(&wData, 2, 2, 3, 0);
-	bonusList.push_back(bonus);
-	allObjectList.push_back(bonus);
-
+	SpawnBonus(2, 2);
+	
 	DrawChanges();
 	
 	int tick = 0;
 
 	while (worldIsRun) {
+
 		if (pause) {
 
 			SetPos(COLS / 2 - 2, ROWS / 2);
@@ -392,33 +414,37 @@ void Game::RunWorld(bool& restart)
 
 		player->MoveObject();
 
-		
-		if (immortal) {
-			if (tick % 3 == 0) {
-				for (int i = 0; i < enemyList.size(); i++)
+		for (int i = 0; i < enemyList.size(); i++)
+		{
+			if (enemyList[i]->IsDeath() && immortal) {
+				for (int step = 0; step < 3; step++)
 				{
-					enemyList[i]->IsInVisArea(player);
 					enemyList[i]->MoveObject();
-
 				}
 			}
-		}
-		else {
-			for (int i = 0; i < enemyList.size(); i++)
-			{
+			else if (!enemyList[i]->IsDeath() && immortal) {
+				if (tick % 3 == 0) enemyList[i]->MoveObject();
+			}
+			else {
 				enemyList[i]->IsInVisArea(player);
 				enemyList[i]->MoveObject();
-
 			}
 		}
 
-		Collision(player);
+		if (tick % 500 == 0) SpawnBonus(2, 2);
 
 		DrawToMem();
 
 		DrawChanges();
 
+		Collision(player);
+
 		DrawInfo(player);
+
+		if (coinList.empty()) {
+			worldIsRun = false;
+			win = true;
+		}
 
 		Sleep(60);
 

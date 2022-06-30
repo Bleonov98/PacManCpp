@@ -211,6 +211,8 @@ void Game::Collision(Player* player)
 			 ( player->GetX() == bonusList[i]->GetX() && player->GetY() - 1 == bonusList[i]->GetY() ) ||
 			 ( player->GetX() == bonusList[i]->GetX() && player->GetY() == bonusList[i]->GetY() ) ) {
  
+			PlaySound(MAKEINTRESOURCE(IDR_WAVE3), NULL, SND_RESOURCE | SND_ASYNC);
+
 			if (bonusList[i]->GetType() == LOW) score += 100;
 			else if (bonusList[i]->GetType() == MID) score += 300;
 			else if (bonusList[i]->GetType() == HIGH) score += 500;
@@ -225,6 +227,7 @@ void Game::Collision(Player* player)
 	for (int i = 0; i < coinList.size(); i++)
 	{
 		if (player->GetX() == coinList[i]->GetX() && player->GetY() == coinList[i]->GetY()) {
+			PlaySound(MAKEINTRESOURCE(IDR_WAVE2), NULL, SND_RESOURCE | SND_ASYNC | SND_NOSTOP);
 			score += 10;
 
 			if (coinList[i]->GetType() == IMMORTAL) {
@@ -250,6 +253,8 @@ void Game::Collision(Player* player)
 				((player->GetX() == enemyList[i]->GetX()) && (player->GetY() - 1 == enemyList[i]->GetY())) ||
 				((player->GetX() == enemyList[i]->GetX()) && (player->GetY() + 1 == enemyList[i]->GetY())) ||
 				((player->GetX() == enemyList[i]->GetX()) && (player->GetY() == enemyList[i]->GetY())) ) {
+
+				PlaySound(MAKEINTRESOURCE(IDR_WAVE5), NULL, SND_RESOURCE | SND_ASYNC);
 
 				player->Death(worldIsRun);
 
@@ -277,6 +282,8 @@ void Game::Collision(Player* player)
 				((player->GetX() == enemyList[i]->GetX()) && (player->GetY() + 1 == enemyList[i]->GetY())) ||
 				((player->GetX() == enemyList[i]->GetX()) && (player->GetY() == enemyList[i]->GetY())) ) {
 				
+				PlaySound(MAKEINTRESOURCE(IDR_WAVE4), NULL, SND_RESOURCE | SND_ASYNC);
+
 				enemyList[i]->EnemyDeath();
 
 				Sleep(100);
@@ -368,6 +375,7 @@ void Game::CreateWorld() {
 	printf(CSI "?25l"); // hide cursor blinking
 
 	DrawArea();
+	PlaySound(MAKEINTRESOURCE(IDR_WAVE1), NULL, SND_RESOURCE | SND_ASYNC);
 }
 
 void Game::RunWorld(bool& restart)

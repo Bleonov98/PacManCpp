@@ -60,7 +60,23 @@ LANGUAGE LANG_UKRAINIAN, SUBLANG_DEFAULT
 // TEXT
 //
 
-IDR_TEXT1               TEXT                    "C:\\Users\\Borys\\source\\repos\\PacManCpp\\PacManArea.txt"
+IDR_TEXT1               TEXT                    "..\\PacManArea.txt"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// WAVE
+//
+
+IDR_WAVE1               WAVE                    "..\\beginning.wav"
+
+IDR_WAVE2               WAVE                    "..\\eatCoin.wav"
+
+IDR_WAVE3               WAVE                    "..\\eatfruit.wav"
+
+IDR_WAVE4               WAVE                    "..\\eatghost.wav"
+
+IDR_WAVE5               WAVE                    "..\\death.wav"
 
 #endif    // Ukrainian (Ukraine) resources
 /////////////////////////////////////////////////////////////////////////////

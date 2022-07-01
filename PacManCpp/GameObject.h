@@ -215,10 +215,10 @@ public:
 
 	void SetType(int type);
 
+	vector <pair<int, int>> wallCoord;
+
 private:
 
-	vector <pair<int, int>> wallCoord;
-	
 	static const int GIANT_WALL_WIDTH = 56;
 	static const int MAIN_WALL_WIDTH = 36;
 	static const int BIG_WALL_WIDTH = 30;

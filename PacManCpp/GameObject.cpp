@@ -40,19 +40,19 @@ void GameObject::DeleteObject()
 void DynamicObject::CheckNextStep()
 {
     if (
-        (_direction == UP) && (wData->vBuf[_y - 1][_x] == u'#' || _y - 1 == 1)
+        (_direction == UP) && (wData->vBuf[_y - 1][_x] == (u'#' | (1 << 8)) || _y - 1 == 1)
        ) {
         _direction = STOP;
     }
     else if (
-        (_direction == RIGHT) && (wData->vBuf[_y][_x + 1] == u'#' || _x + 1 == COLS - 1)
+        (_direction == RIGHT) && (wData->vBuf[_y][_x + 1] == (u'#' | (1 << 8)) || _x + 1 == COLS - 1)
         ) {
         _direction = STOP;
     }
-    else if (_direction == DOWN && (wData->vBuf[_y + 1][_x] == u'#' || _y + 1 == ROWS)) {
+    else if (_direction == DOWN && (wData->vBuf[_y + 1][_x] == (u'#' | (1 << 8)) || _y + 1 == ROWS)) {
         _direction = STOP;
     }
-    else if (_direction == LEFT && (wData->vBuf[_y][_x - 1] == u'#' || _x - 1 == 1)) {
+    else if (_direction == LEFT && (wData->vBuf[_y][_x - 1] == (u'#' | (1 << 8)) || _x - 1 == 1)) {
         _direction = STOP;
     }
 }
@@ -67,7 +67,7 @@ void DynamicObject::FindPath(pair <int, int> targetPos)
     {
         for (int j = 0; j < COLS; j++)
         {
-            if (wData->vBuf[i][j] == u'#' || i <= 1 || j <= 1 || j >= COLS - 1 || i >= ROWS) {
+            if (wData->vBuf[i][j] == (u'#' | (1 << 8)) || i <= 1 || j <= 1 || j >= COLS - 1 || i >= ROWS) {
                 wData->grid[i][j] = -99;
             }
             else wData->grid[i][j] = -1;
@@ -158,16 +158,16 @@ void DynamicObject::FindPath(pair <int, int> targetPos)
 
 void Player::ChangeDirection()
 {
-    if (GetAsyncKeyState(VK_UP) && (wData->vBuf[_y - 1][_x] != u'#') && (_y - 1 != 1)) {
+    if (GetAsyncKeyState(VK_UP) && (wData->vBuf[_y - 1][_x] != (u'#' | (1 << 8))) && (_y - 1 != 1)) {
         _direction = UP;
     }
-    else if (GetAsyncKeyState(VK_RIGHT) && (wData->vBuf[_y][_x + 1] != u'#') && (_x + 1 != COLS - 1)) {
+    else if (GetAsyncKeyState(VK_RIGHT) && (wData->vBuf[_y][_x + 1] != (u'#' | (1 << 8))) && (_x + 1 != COLS - 1)) {
         _direction = RIGHT;
     }
-    else if (GetAsyncKeyState(VK_DOWN) && (wData->vBuf[_y + 1][_x] != u'#') && (_y + 1 != ROWS)) {
+    else if (GetAsyncKeyState(VK_DOWN) && (wData->vBuf[_y + 1][_x] != (u'#' | (1 << 8))) && (_y + 1 != ROWS)) {
         _direction = DOWN;
     }
-    else if (GetAsyncKeyState(VK_LEFT) && (wData->vBuf[_y][_x - 1] != u'#') && (_x - 1 != 1)) {
+    else if (GetAsyncKeyState(VK_LEFT) && (wData->vBuf[_y][_x - 1] != (u'#' | (1 << 8))) && (_x - 1 != 1)) {
         _direction = LEFT;
     }
 }
@@ -478,7 +478,7 @@ void Wall::DrawObject()
     {
         for (int i = 0; i < wallCoord.size(); i++)
         {
-            wData->vBuf[wallCoord[i].second + _y][wallCoord[i].first + _x] = MainWallSprite[wallCoord[i].second][wallCoord[i].first];
+            wData->vBuf[wallCoord[i].second + _y][wallCoord[i].first + _x] = MainWallSprite[wallCoord[i].second][wallCoord[i].first] | (_color << 8);
         }
     }
 
@@ -486,7 +486,7 @@ void Wall::DrawObject()
     {
         for (int i = 0; i < wallCoord.size(); i++)
         {
-            wData->vBuf[wallCoord[i].second + _y][wallCoord[i].first + _x] = BigWallSprite[wallCoord[i].second][wallCoord[i].first];
+            wData->vBuf[wallCoord[i].second + _y][wallCoord[i].first + _x] = BigWallSprite[wallCoord[i].second][wallCoord[i].first] | (_color << 8);
         }
     }
 
@@ -494,7 +494,7 @@ void Wall::DrawObject()
     {
         for (int i = 0; i < wallCoord.size(); i++)
         {
-            wData->vBuf[wallCoord[i].second + _y][wallCoord[i].first + _x] = LilWallSprite[wallCoord[i].second][wallCoord[i].first];
+            wData->vBuf[wallCoord[i].second + _y][wallCoord[i].first + _x] = LilWallSprite[wallCoord[i].second][wallCoord[i].first] | (_color << 8);
         }
     }
 
@@ -502,21 +502,21 @@ void Wall::DrawObject()
     {
         for (int i = 0; i < wallCoord.size(); i++)
         {
-            wData->vBuf[wallCoord[i].second + _y][wallCoord[i].first + _x] = GiantWallSprite[wallCoord[i].second][wallCoord[i].first];
+            wData->vBuf[wallCoord[i].second + _y][wallCoord[i].first + _x] = GiantWallSprite[wallCoord[i].second][wallCoord[i].first] | (_color << 8);
         }
     }
 
     else if (_type == THIN) {
         for (int i = 0; i < wallCoord.size(); i++)
         {
-            wData->vBuf[wallCoord[i].second + _y][wallCoord[i].first + _x] = ThinWallSprite[wallCoord[i].second][wallCoord[i].first];
+            wData->vBuf[wallCoord[i].second + _y][wallCoord[i].first + _x] = ThinWallSprite[wallCoord[i].second][wallCoord[i].first] | (_color << 8);
         }
     }
 
     else if (_type == REGULAR) {
         for (int i = 0; i < wallCoord.size(); i++)
         {
-            wData->vBuf[wallCoord[i].second + _y][wallCoord[i].first + _x] = RegWallSprite[wallCoord[i].second][wallCoord[i].first];
+            wData->vBuf[wallCoord[i].second + _y][wallCoord[i].first + _x] = RegWallSprite[wallCoord[i].second][wallCoord[i].first] | (_color << 8);
         }
     }
 }

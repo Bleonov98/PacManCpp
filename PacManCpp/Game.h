@@ -106,6 +106,20 @@ private:
             SetConsoleTitleA("Space Invaders C++");
         }
 
+        void SetConsoleFont() {
+
+            CONSOLE_FONT_INFOEX cfi;
+
+            cfi.cbSize = sizeof(CONSOLE_FONT_INFOEX);
+            cfi.nFont = 6;
+            cfi.dwFontSize.X = 30;
+            cfi.dwFontSize.Y = 13;
+            cfi.FontFamily = 54;
+            cfi.FontWeight = 1000;
+
+            wcscpy_s(cfi.FaceName, L"Lucida Console");
+            SetCurrentConsoleFontEx(hOut, 0, &cfi);
+        }
     };
 
     VirtualTerminal term; // console setting

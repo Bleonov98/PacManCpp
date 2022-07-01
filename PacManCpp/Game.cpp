@@ -80,7 +80,7 @@ void Game::DrawChanges()
 					printf(CSI "22;32m");
 				}
 				else if ((prevBuf[y][x] >> 8) == Blue) {
-					printf(CSI "22;34m");
+					if (prevBuf[y][x] != (u' ' | (1 << 8))) printf(CSI "44;34m");
 				}
 				else if ((prevBuf[y][x] >> 8) == Yellow) {
 					printf(CSI "22;33m");
@@ -109,7 +109,7 @@ void Game::DrawChanges()
 
 void Game::SetWall(int x, int y, int type)
 {
-	wall = new Wall(&wData, x, y, 0, White);
+	wall = new Wall(&wData, x, y, 0, Blue);
 	wall->SetType(type);
 	wallList.push_back(wall);
 }
@@ -126,7 +126,7 @@ void Game::SpawnEnemies()
 {
 	for (int i = 0; i < ENEMY_COUNT; i++)
 	{
-		enemy = new Enemies(&wData, 54 + i * 2, 25, 1, 1 + i);
+		enemy = new Enemies(&wData, 54 + i * 2, 25, 1, 2 + i);
 		enemyList.push_back(enemy);
 		allObjectList.push_back(enemy);
 	}
@@ -190,7 +190,7 @@ void Game::DrawLevel()
 	{
 		for (int x = 2; x < COLS; x += 2)
 		{
-			if (wData.vBuf[y][x] != u'#' && wData.vBuf[y][x] != u' ') {
+			if (wData.vBuf[y][x] != (u'#' | (1 << 8)) && wData.vBuf[y][x] != (u' ' | (1 << 8))) {
 				if ((y == 2 && x == 2) || (y == 2 && x == COLS - 2) || (y == ROWS - 1 && x == 2) || (y == ROWS - 1 && x == COLS - 2)) {
 					SetCoin(x, y, IMMORTAL);
 				}
@@ -370,6 +370,7 @@ void Game::CreateWorld() {
 
 	term.Terminal();  // Set virtual terminal settings
 	term.SetScreenSize();
+	term.SetConsoleFont();
 
 	printf(CSI "?1049h"); // enable alt buffer
 	printf(CSI "?25l"); // hide cursor blinking
